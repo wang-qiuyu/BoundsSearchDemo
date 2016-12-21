@@ -9,7 +9,6 @@
 #import "ViewController.h"
 
 @interface ViewController ()
-
 @end
 
 @implementation ViewController
@@ -77,17 +76,43 @@
         [_mapView removeAnnotations:array];
         array = [NSArray arrayWithArray:_mapView.overlays];
         [_mapView removeOverlays:array];
+        
         //在此处理正常结果
         for (int i = 0; i < result.poiInfoList.count; i++)
         {
             BMKPoiInfo* poi = [result.poiInfoList objectAtIndex:i];
             [self addAnimatedAnnotationWithName:poi.name withAddress:poi.pt];
+            
+            //逆地理编码
+            BMKGeoCodeSearch *_geoCodeSearch = [[BMKGeoCodeSearch alloc]init];
+            _geoCodeSearch.delegate = self;
+            //初始化逆地理编码类
+            BMKReverseGeoCodeOption *reverseGeoCodeOption= [[BMKReverseGeoCodeOption alloc] init];
+            //需要逆地理编码的坐标位置
+            reverseGeoCodeOption.reverseGeoPoint = poi.pt;
+            [_geoCodeSearch reverseGeoCode:reverseGeoCodeOption];
         }
         
     } else if (error == BMK_SEARCH_AMBIGUOUS_ROURE_ADDR){
         NSLog(@"起始点有歧义");
     } else {
         // 各种情况的判断。。。
+    }
+}
+/**
+ *返回反地理编码搜索结果
+ *@param searcher 搜索对象
+ *@param result 搜索结果
+ *@param error 错误号，@see BMKSearchErrorCode
+ */
+- (void)onGetReverseGeoCodeResult:(BMKGeoCodeSearch *)searcher result:(BMKReverseGeoCodeResult *)result errorCode:(BMKSearchErrorCode)error
+{
+    if (error==0) {
+        
+        //BMKReverseGeoCodeResult是编码的结果，包括地理位置，道路名称，uid，城市名等信息
+        BMKAddressComponent *address = result.addressDetail;
+        NSLog(@"详细地址：省份：%@，区县地址：%@，城市： %@，街道： %@，街道号码：%@",address.province,address.city,address.district,address.streetName,address.streetNumber);
+        
     }
 }
 // 添加动画Annotation
@@ -97,7 +122,9 @@
     animatedAnnotation.coordinate = coor;
     animatedAnnotation.title = name;
     [_mapView addAnnotation:animatedAnnotation];
+    
 }
+
 -(void)viewWillAppear:(BOOL)animated {
     [_mapView viewWillAppear];
     
@@ -132,7 +159,6 @@
     //        NSLog(@"didUpdateUserLocation lat %f,long %f",userLocation.location.coordinate.latitude,userLocation.location.coordinate.longitude);
     [_mapView updateLocationData:userLocation];
 }
-
 
 
 - (void)didReceiveMemoryWarning {

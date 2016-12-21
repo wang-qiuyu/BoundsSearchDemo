@@ -20,7 +20,8 @@
 #import <BaiduMapAPI_Map/BMKMapView.h>//只引入所需的单个头文件
 #import <BaiduMapAPI_Map/BMKMapComponent.h>
 #import <BaiduMapAPI_Location/BMKLocationComponent.h>
-@interface ViewController : UIViewController<BMKMapViewDelegate, BMKPoiSearchDelegate,BMKMapViewDelegate,BMKLocationServiceDelegate>
+
+@interface ViewController : UIViewController<BMKMapViewDelegate, BMKPoiSearchDelegate,BMKMapViewDelegate,BMKLocationServiceDelegate,BMKGeoCodeSearchDelegate>
 {
     BMKMapView* _mapView;
     BMKPoiSearch* _poisearch;
